@@ -1,6 +1,8 @@
 # Neco
 
-Neco emulates Call-With-Current-Continuation(aka. call/cc) in C++14 using macros, may serves as a building block for asynchronos program.
+Call-With-Current-Continuation, aka call/cc, is an advanced control flow operator in Scheme and several other languages.
+
+Neco emulates call/cc in C++14 using macros, may serves as a building block for asynchronos program.
 
 See demo.cc for details.
 
