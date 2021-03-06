@@ -2,27 +2,21 @@
 
 #include "neco.h"
 
-class A : public std::enable_shared_from_this<A> {
- public:
-    NECO_FUNC(LoopPrintDemo, int times);
+void Print(neco::Func continuation, std::string s) {
+    std::cout << s << std::endl;
+    continuation();
+}
 
-    void Print(neco::Func continuation, std::string s) {
-        std::cout << s << std::endl;
-        continuation();
-    }
+template<typename T>
+void Print(neco::Func continuation, T i) {
+    std::cout << std::to_string(i) << std::endl;
+    continuation();
+}
 
-    template<typename T>
-    void Print(neco::Func continuation, T i) {
-        std::cout << std::to_string(i) << std::endl;
-        continuation();
-    }
-};
-
-NECO_FUNC(A::LoopPrintDemo, int times) {
+NECO_FUNC(LoopPrintDemo, int times) {
     DEFINE_NECO_VAR(
-        int i;
+        int i = 0;
         int times;)
-    NECO_VAR_REF(i) = 0;
     NECO_VAR_REF(times) = times;
 
     NECO_BEGIN
@@ -40,8 +34,7 @@ NECO_FUNC(A::LoopPrintDemo, int times) {
 }
 
 int main() {
-  auto a = std::make_shared<A>();
   // first parameter of LoopPrintDemo is a callback function
-  a->LoopPrintDemo([]{std::cout << "End of Demo\n";}, 3);
+  LoopPrintDemo([]{std::cout << "End of Demo\n";}, 3);
   return 0;
 }
