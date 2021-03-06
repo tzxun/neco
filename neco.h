@@ -43,18 +43,17 @@ class TaskQueue {
   std::queue<Func> task_queue_;
 };
 
-#define NECO_BEGIN                                                 \
-  auto __co_task_queue = std::make_shared<neco::TaskQueue>();      \
-  auto __self = shared_from_this();                                \
-  __co_task_queue->AddTask(                                        \
-    [this, __self, __NECO_CONTEXT, __callback, __co_task_queue](){
+#define NECO_BEGIN                                               \
+  auto __co_task_queue = std::make_shared<neco::TaskQueue>();    \
+  __co_task_queue->AddTask(                                      \
+    [__neco_context, __callback, __co_task_queue](){
 
 #define NECO_CONTINUATION (__co_task_queue->Continuation())
 
 #define CALL_CC(func, ...)                                        \
   func(NECO_CONTINUATION, ##__VA_ARGS__);                         \
   },                                                              \
-  [this, __self, __NECO_CONTEXT, __callback, __co_task_queue](){    
+  [__neco_context, __callback, __co_task_queue](){    
 
 #define NECO_RETURN *__co_task_queue = neco::TaskQueue();__callback();return;
 
@@ -65,22 +64,22 @@ class TaskQueue {
 #define NECO_FUNC(func, ...)                     \
   void func(neco::Func __callback, ##__VA_ARGS__)
 
-#define DEFINE_NECO_VAR(NECO_VAR_REFlist)     \
-  struct {                                    \
-    NECO_VAR_REFlist                          \
-  } *__context_type;                          \
-  auto __NECO_CONTEXT = std::make_shared<std::remove_reference<decltype(*__context_type)>::type>();
+#define DEFINE_NECO_VAR(NECO_VAR_REFlist) \
+  struct {                                 \
+    NECO_VAR_REFlist                           \
+  } *__context_type;                       \
+  auto __neco_context = std::make_shared<std::remove_reference<decltype(*__context_type)>::type>();
 
-#define NECO_VAR_REF(__name) (__NECO_CONTEXT->__name)
+#define NECO_VAR_REF(__name) (__neco_context->__name)
 
-#define NECO_CONTEXT __NECO_CONTEXT
+#define NECO_CONTEXT __neco_context
 
 #define NECO_WHILE(__cond)                                                      \
-  auto __async_while = [this, __self, __NECO_CONTEXT](neco::Func __callback) {  \
+  auto __async_while = [__neco_context](neco::Func __callback) {  \
       auto __co_task_queue = std::make_shared<neco::TaskQueue>();               \
       auto __co_task_queue_backup = std::make_shared<neco::TaskQueue>();        \
       __co_task_queue->AddTask(                                                 \
-      [this, __self, __NECO_CONTEXT, __callback, __co_task_queue,               \
+      [__neco_context, __callback, __co_task_queue,               \
           __co_task_queue_backup](){                                            \
       if(!(__cond)) {                                                           \
         *__co_task_queue = neco::TaskQueue();                                   \
@@ -93,7 +92,7 @@ class TaskQueue {
         auto __continuation = __co_task_queue->Continuation();                                \
         __continuation();                                                                     \
       },                                                                                      \
-      [this, __self, __NECO_CONTEXT, __callback, __co_task_queue, __co_task_queue_backup]() { \
+      [__neco_context, __callback, __co_task_queue, __co_task_queue_backup]() { \
         __co_task_queue->task_queue_ = __co_task_queue_backup->task_queue_;                   \
         __co_task_queue->Run();                                                               \
       });                                                                                     \
@@ -102,13 +101,13 @@ class TaskQueue {
     };                                                                                        \
     __async_while(__co_task_queue->Continuation());                                           \
   },                                                                                          \
-  [this, __self, __NECO_CONTEXT, __callback, __co_task_queue](){
+  [__neco_context, __callback, __co_task_queue](){
 
 #define NECO_IF(__cond)                                                          \
-    auto __async_if = [this, __self, __NECO_CONTEXT](neco::Func __callback) {    \
+    auto __async_if = [__neco_context](neco::Func __callback) {    \
       auto __co_task_queue = std::make_shared<neco::TaskQueue>();                \
       __co_task_queue->AddTask(                                                  \
-      [this, __self, __NECO_CONTEXT, __callback, __co_task_queue](){             \
+      [__neco_context, __callback, __co_task_queue](){             \
         if(!(__cond)) {                                                          \
           *__co_task_queue = neco::TaskQueue();                                  \
           __callback();                                                          \
@@ -122,7 +121,7 @@ class TaskQueue {
     };                                                                        \
     __async_if(__co_task_queue->Continuation());                              \
   },                                                                          \
-  [this, __self, __NECO_CONTEXT, __callback, __co_task_queue](){
+  [__neco_context, __callback, __co_task_queue](){
 
 }  // namespace neco
 
