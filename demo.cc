@@ -22,6 +22,7 @@ NECO_FUNC(LoopPrintDemo, int times) {
     NECO_BEGIN
         if (NECO_VAR_REF(times) <= 0) {
             std::cout << "error" << std::endl;
+            NECO_RETURN;
         }
         NECO_WHILE(NECO_VAR_REF(i) < 3)
             NECO_VAR_REF(i)++;
@@ -36,5 +37,6 @@ NECO_FUNC(LoopPrintDemo, int times) {
 int main() {
   // first parameter of LoopPrintDemo is a callback function
   LoopPrintDemo([]{std::cout << "End of Demo\n";}, 3);
+  LoopPrintDemo([]{std::cout << "End of Error Demo\n";}, -1);
   return 0;
 }
